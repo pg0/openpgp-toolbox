@@ -13,3 +13,4 @@ auto-decrypted via enigmail or similar
 
 ### Dependencies:
 - OpenPGP implementation for JavaScript https://openpgpjs.org
+- JQuery https://jquery.com (not necessarily)
