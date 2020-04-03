@@ -20,7 +20,7 @@
 <body>
 <h2>Encrypt for one or more PublicKeys</h2>
 <u>Offline</u> in your Browser<br />
-No data was sent somewhere during encryption
+No data is send during encryption
 <br /><br />
 
 <script src="js/openpgp.min.js"></script>
@@ -28,7 +28,7 @@ No data was sent somewhere during encryption
 PublicKeys<br />
 <textarea id="pgp_pubkey" class="txtarea largetxtarea"></textarea><br />
 <br />
-Message:<br />
+Message: <button id="btnEncrypt">encrypt</button><br />
 <textarea id="pgp_input" class="txtarea"></textarea><br />
 Encrypted Message:<br />
 <textarea id="pgp_output" class="txtarea"></textarea>
@@ -103,6 +103,9 @@ $('#pgp_input').bind('input propertychange', function() {
 $('#pgp_pubkey').bind('input propertychange', function() {
     doEncrypt()
 });
+$('#btnEncrypt').click(function() {
+    doEncrypt()
+})
 </script>
 
 </body>

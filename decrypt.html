@@ -18,14 +18,14 @@
 <body>
 <h2>Decrypt with OpenPGP.js</h2>
 <u>Offline</u> in your Browser<br />
-No data was sent somewhere during encryption
+No data is send during encryption
 <br /><br />
 <script src="js/openpgp.min.js"></script>
 
 PrivateKey: (Keep yours for yourself!!!)<br />
 <textarea id="pgp_privkey" class="txtarea"></textarea><br />
 <br />
-Encrypted Message:<br />
+Encrypted Message: <button id="btnDecrypt">decrypt</button><br />
 <textarea id="pgp_input" class="txtarea"></textarea><br />
 Decrypted Message:<br />
 <textarea id="pgp_output" class="txtarea"></textarea>
@@ -87,6 +87,9 @@ $('#pgp_input').bind('input propertychange', function() {
 $('#pgp_privkey').bind('input propertychange', function() {
     doDecrypt()
 });
+$('#btnDecrypt').click(function() {
+    doDecrypt()
+})
 </script>
 
 </body>
