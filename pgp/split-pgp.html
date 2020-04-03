@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+var keys = `-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: OpenPGP.js v4.10.1
+Comment: https://openpgpjs.org
+
+xjMEXocPVxYJKwYBBAHaRw8BAQdA/DNI26iBA1S04kH9klHL1z3jKYcTnngq
+N2Lhabnc57jNAMJ4BBAWCgAgBQJehw9XBgsJBwgDAgQVCAoCBBYCAQACGQEC
+GwMCHgEACgkQ/vPprG7Mbhn4vgD/Z9m2ZpSTmQKyohBggbSdlp0YT4XvadVj
+ZhXSc1tSQ/8BAOFPKUEJkRlzZ0XE33l2YktU4bn2sJv6esfGGfo+efQKzjgE
+XocPVxIKKwYBBAGXVQEFAQEHQHdXPNNGh3jPKec5QM9zQBc4Ynl+9f8bVGBE
+m0l8K8AOAwEIB8JhBBgWCAAJBQJehw9XAhsMAAoJEP7z6axuzG4ZbbUA/2hN
+Ah6gjhhJxuuuzpKXFydt7xL3iTdI6/zGJoSgOGYrAQDok52/rUitv0pZS9Sw
+Fx0rjsdsp2nvGbFkqPDT/xUiDg==
+=7ROV
+-----END PGP PUBLIC KEY BLOCK-----
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: OpenPGP.js v4.10.1
+Comment: https://openpgpjs.org
+
+xjMEXocUChYJKwYBBAHaRw8BAQdA5J1QT7DQbCBFT/MMYQvc5CJfjbkXSKVJ
+K9lls1tl2qPNBnNlY29uZMJ4BBAWCgAgBQJehxQKBgsJBwgDAgQVCAoCBBYC
+AQACGQECGwMCHgEACgkQDYnpi+7XX0krMgEAvjgyDNVSt9HLgx7O9lhXVDCT
+CsqDttyp6BMskZlzNssA/R6pJMKXFsdkvzF5ZQfDGxG9CdkLuxFSLjewx5/3
+NFkGzjgEXocUChIKKwYBBAGXVQEFAQEHQC8QNXYdCrrlRcX38cGOnb/H1z1Q
+rCBEz2JwGivAn88ZAwEIB8JhBBgWCAAJBQJehxQKAhsMAAoJEA2J6Yvu119J
+a/QBAMv4/9cX7OdtBgPVHu4tTadIJgC86ahYd+ZjW1PQZbn5AP9vuM9XEhmO
+cQUWmhvY3vAHKNepB3OoBVX7ha7mNQIeDw==
+=7foK
+-----END PGP PUBLIC KEY BLOCK-----`;
+
+var res = keys.split('-----BEGIN');
+res = res.filter(function(x){ return (x !== (undefined || null || '')); });
+res = res.map(x => "-----BEGIN"+x)
+
+console.log(res);
+    </script>
+    
+</body>
+</html>

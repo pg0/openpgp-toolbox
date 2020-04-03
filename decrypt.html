@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="jquery.min.js"></script>
+    <style type="text/css">
+        .txtarea {
+            width: 600px;
+            height: 200px;
+        }
+
+    </style>
+    <title>Decrypt with PrivateKey</title>
+</head>
+
+<body>
+<h2>Decrypt with OpenPGP.js</h2>
+<u>Offline</u> in your Browser<br />
+No data was sent somewhere during encryption
+<br /><br />
+<script src="./openpgp.min.js"></script>
+
+PrivateKey: (Keep yours for yourself!!!)<br />
+<textarea id="pgp_privkey" class="txtarea"></textarea><br />
+<br />
+Encrypted Message:<br />
+<textarea id="pgp_input" class="txtarea"></textarea><br />
+Decrypted Message:<br />
+<textarea id="pgp_output" class="txtarea"></textarea>
+
+
+<script>
+$("#pgp_privkey").val(`-----BEGIN PGP PRIVATE KEY BLOCK-----
+
+xVgEXob/lxYJKwYBBAHaRw8BAQdAVLWbXbEvderwWWmAovvCiGpZvvgs3OU+
+BRKxAWRnU64AAP9j6c4PxEvjtdgt66z3Rxsp7AYntG2E3IUN7MpDs7BKUBIP
+zRpkZW1vIDxkZW1vQHlvdXJkb21haW4uY29tPsJ4BBAWCgAgBQJehv+XBgsJ
+BwgDAgQVCAoCBBYCAQACGQECGwMCHgEACgkQ0OdE70D3yGPH7AEA0CqxKyN+
+iO2G/FEFFWRonji3YAnvdGuVqySl6mAgoj8BANik1S8AhBHdk+Rxd6sze0Ct
+pfurP/qpUc8/gRD43lINx10EXob/lxIKKwYBBAGXVQEFAQEHQDUtmHTI9Uy6
+u44yr6XWGKC/3z+Q4OJi9WKAAdO+LWpbAwEIBwAA/1przk3UEIuTTByxWCFx
+81m/CLwK7osxIFBStXz0LH8YDxHCYQQYFggACQUCXob/lwIbDAAKCRDQ50Tv
+QPfIYxHEAQD9oK6wBoN9bL6CNPsl+yFfAUutkikPs4kxtREh9MOTmQEA6XpZ
+KvKPuRsF4pdz7tZZtYUYVgLyEsGcxb4r1ocZMwE=
+=2IY9
+-----END PGP PRIVATE KEY BLOCK-----`);
+
+$("#pgp_input").val(`-----BEGIN PGP MESSAGE-----
+
+wV4D91Dl29Uit6oSAQdA6cMYq4VXxM1S4LQPu0XW4mBVv0b8ENdlsRZ92s1m
+ZT4wRw6lCzIosUnT0mAHia9TPiYLJFcgIj80FX8j6J6TANMEgExa6WIjTMyd
+uH57+qw40o8Bp0Sa9JPwDJSy3tm6hk7GYwHvjxDjn/trgRhTakpoe5w/dOpO
+MdZzxPIncLVJLcXGVUXc8XaQiqetGoOdW8lqwf7ZmOgmjv48n0+EAsgyEaVc
+NyblsfhbzRRto/MLpYvhdTWSj+5jU3tdHEbhv8aYHae+VNLxUD4TyxyYdf7l
+2uoAvBRLqVScGsf4bAYFQQ==
+=AMHe
+-----END PGP MESSAGE-----`);
+
+(async () => {
+    doDecrypt = async function() {
+        const privateKeyArmored = $("#pgp_privkey").val().replace(/\r/, "")
+        const ciphertext = $("#pgp_input").val().replace(/\r/, "")
+
+        if (privateKeyArmored != '' && ciphertext != '') {
+            const privateKey = (await openpgp.key.readArmored([privateKeyArmored])).keys[0];
+
+            const decrypted = await openpgp.decrypt({
+                message: await openpgp.message.readArmored(ciphertext),
+                privateKeys: [privateKey]
+            });
+
+            $("#pgp_output").val(decrypted.data)
+
+        } else {
+            $("#pgp_output").val('')
+        }
+};
+})();
+
+doDecrypt()
+
+$('#pgp_input').bind('input propertychange', function() {
+    doDecrypt()
+});
+$('#pgp_privkey').bind('input propertychange', function() {
+    doDecrypt()
+});
+</script>
+
+</body>
+
+</html>

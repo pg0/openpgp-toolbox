@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenPGP - Generate KeyPair (Private,Public,Revoke)</title>
+    <script src="openpgp.min.js"></script>
+    <script src="jquery.min.js"></script>
+    <style type="text/css">
+    input {
+        width:300px;
+    }
+    </style>
+    
+</head>
+<body>
+<h1>PGP Keygenerator</h1>
+Notes:<br />Keys are calculated localy via javascript and not published!<br />
+The ed25519 curve generates a primary key for signing using Ed25519 and a subkey for encryption using Curve25519.<br />
+More info can be found on Wikipedia <a href="https://en.wikipedia.org/wiki/EdDSA">EdDSA</a> <a href="https://en.wikipedia.org/wiki/Curve25519">Curve25519</a><br />
+
+<br />
+You don't have to set a passphrase. if you don't, anyone who owns a copy of your private key can use it!<br />
+Setting a long secure password (20-30 characters) enhances security.
+<br />
+<br />
+
+name: <input type="text" id="txtName" /><br />
+email: <input type="text" id="txtEmail" /><br />
+passphrase: <input type="text" id="txtPassphrase" /><button id="btnRandPW">PW</button><input id="txtPwLen" style="width:20px" value="20" /><br />
+<br />
+Calculate <button id="btnCalcECC">ECC EdDSA</button> <button id="btnCalcRSA">RSA4096 Key</button>
+
+<div id="output"></div>
+<script>
+(async () => {
+    keyGenECC = async function(inName,inEmail,inPassphrase) {
+        const { privateKeyArmored, publicKeyArmored, revocationCertificate } = await openpgp.generateKey({
+            userIds: [{ name: inName, email: inEmail }], // you can pass multiple user IDs
+            curve: 'ed25519',                                           // ECC curve name
+            passphrase: inPassphrase           // protects the private key
+        });
+
+        $('#output').html('<pre>'+privateKeyArmored+'</pre>'+  // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
+        '<pre>'+publicKeyArmored+'</pre>' + // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+        '<pre>'+revocationCertificate+'</pre>'); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+    }
+    keyGenRSA = async function(inName,inEmail,inPassphrase) {
+        const { privateKeyArmored, publicKeyArmored, revocationCertificate } = await openpgp.generateKey({
+            userIds: [{ name: inName, email: inEmail }], // you can pass multiple user IDs
+            rsaBits: 4096,
+            passphrase: inPassphrase           // protects the private key
+        });
+
+        $('#output').html('<pre>'+privateKeyArmored+'</pre>'+  // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
+        '<pre>'+publicKeyArmored+'</pre>' + // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+        '<pre>'+revocationCertificate+'</pre>'); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+    }
+})();
+
+
+$('#btnCalcECC').click(function() {
+    let name = $('#txtName').val();
+    let email = $('#txtEmail').val();
+    let passphrase = $('#txtPassphrase').val();
+
+    keyGenECC(name,email,passphrase);
+})
+$('#btnCalcRSA').click(function() {
+    let name = $('#txtName').val();
+    let email = $('#txtEmail').val();
+    let passphrase = $('#txtPassphrase').val();
+
+    keyGenRSA(name,email,passphrase);
+})
+$('#btnRandPW').click(function() {
+    let length = $('#txtPwLen').val();
+    let randompw = generatePassword(length);
+
+    $('#txtPassphrase').val(randompw);
+
+})
+
+function generatePassword(length) {
+    var length = length,
+        charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&@~*+!?=<",
+        retVal = "";
+    for (var i = 0, n = charset.length; i < length; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+    return retVal;
+}
+
+
+</script>
+
+</body>
+</html>

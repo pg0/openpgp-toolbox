@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encrypt and decrypt String data with PGP keys</title>
+</head>
+<body>
+<script src="openpgp.min.js"></script>
+<script>
+(async () => {
+    const publicKeysInput = 
+        `-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xjMEXocPVxYJKwYBBAHaRw8BAQdA/DNI26iBA1S04kH9klHL1z3jKYcTnngq
+N2Lhabnc57jNAMJ4BBAWCgAgBQJehw9XBgsJBwgDAgQVCAoCBBYCAQACGQEC
+GwMCHgEACgkQ/vPprG7Mbhn4vgD/Z9m2ZpSTmQKyohBggbSdlp0YT4XvadVj
+ZhXSc1tSQ/8BAOFPKUEJkRlzZ0XE33l2YktU4bn2sJv6esfGGfo+efQKzjgE
+XocPVxIKKwYBBAGXVQEFAQEHQHdXPNNGh3jPKec5QM9zQBc4Ynl+9f8bVGBE
+m0l8K8AOAwEIB8JhBBgWCAAJBQJehw9XAhsMAAoJEP7z6axuzG4ZbbUA/2hN
+Ah6gjhhJxuuuzpKXFydt7xL3iTdI6/zGJoSgOGYrAQDok52/rUitv0pZS9Sw
+Fx0rjsdsp2nvGbFkqPDT/xUiDg==
+=7ROV
+-----END PGP PUBLIC KEY BLOCK-----
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xjMEXocUChYJKwYBBAHaRw8BAQdA5J1QT7DQbCBFT/MMYQvc5CJfjbkXSKVJ
+K9lls1tl2qPNBnNlY29uZMJ4BBAWCgAgBQJehxQKBgsJBwgDAgQVCAoCBBYC
+AQACGQECGwMCHgEACgkQDYnpi+7XX0krMgEAvjgyDNVSt9HLgx7O9lhXVDCT
+CsqDttyp6BMskZlzNssA/R6pJMKXFsdkvzF5ZQfDGxG9CdkLuxFSLjewx5/3
+NFkGzjgEXocUChIKKwYBBAGXVQEFAQEHQC8QNXYdCrrlRcX38cGOnb/H1z1Q
+rCBEz2JwGivAn88ZAwEIB8JhBBgWCAAJBQJehxQKAhsMAAoJEA2J6Yvu119J
+a/QBAMv4/9cX7OdtBgPVHu4tTadIJgC86ahYd+ZjW1PQZbn5AP9vuM9XEhmO
+cQUWmhvY3vAHKNepB3OoBVX7ha7mNQIeDw==
+=7foK
+-----END PGP PUBLIC KEY BLOCK-----`;
+
+    var keysplit = publicKeysInput.split('-----BEGIN');
+        keysplit = keysplit.filter(function(x){ return (x !== (undefined || null || '')); });
+        keysplit = keysplit.map(x => "-----BEGIN"+x)
+    const publicKeysArmored = keysplit;
+    
+    const privateKeyArmored = `-----BEGIN PGP PRIVATE KEY BLOCK-----
+Version: OpenPGP.js v4.10.1
+Comment: https://openpgpjs.org
+
+xVgEXocPVxYJKwYBBAHaRw8BAQdA/DNI26iBA1S04kH9klHL1z3jKYcTnngq
+N2Lhabnc57gAAQChDK2Wchrav+4qBzfouFmjdD2rxAoWo4w0L00inRrOBg3U
+zQDCeAQQFgoAIAUCXocPVwYLCQcIAwIEFQgKAgQWAgEAAhkBAhsDAh4BAAoJ
+EP7z6axuzG4Z+L4A/2fZtmaUk5kCsqIQYIG0nZadGE+F72nVY2YV0nNbUkP/
+AQDhTylBCZEZc2dFxN95dmJLVOG59rCb+nrHxhn6Pnn0CsddBF6HD1cSCisG
+AQQBl1UBBQEBB0B3VzzTRod4zynnOUDPc0AXOGJ5fvX/G1RgRJtJfCvADgMB
+CAcAAP9fL7VB1P74Y5Aljd93RMwNc1VSAgopDpmGI4KCAN0J2A7GwmEEGBYI
+AAkFAl6HD1cCGwwACgkQ/vPprG7MbhlttQD/aE0CHqCOGEnG667OkpcXJ23v
+EveJN0jr/MYmhKA4ZisBAOiTnb+tSK2/SllL1LAXHSuOx2ynae8ZsWSo8NP/
+FSIO
+=kEee
+-----END PGP PRIVATE KEY BLOCK-----`;    // encrypted private key
+    //const passphrase = `yourPassphrase`; // what the private key is encrypted with
+    const message = 'Hello, World! next4';
+
+    console.log(publicKeysArmored)
+
+    //const { keys: [privateKey] } = await openpgp.key.readArmored(privateKeyArmored);
+    //await privateKey.decrypt(passphrase)
+
+    const publicKeys = await Promise.all(publicKeysArmored.map(async (key) => {
+        return (await openpgp.key.readArmored(key)).keys[0];
+    }));
+
+    const { data: encrypted } = await openpgp.encrypt({
+        message: openpgp.message.fromText(message),   // input as Message object
+        publicKeys,                                   // for encryption
+        //privateKeys: [privateKey]                     // for signing (optional)
+    });
+    console.log(encrypted); // '-----BEGIN PGP MESSAGE ... END PGP MESSAGE-----'
+})();
+</script>
+    
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="jquery.min.js"></script>
+    <style type="text/css">
+        .txtarea {
+            width: 600px;
+            height: 200px;
+        }
+    </style>
+    <title>Encrypt with PublicKey</title>
+</head>
+
+<body>
+<h2>Encrypt with OpenPGP.js</h2>
+<u>Offline</u> in your Browser<br />
+No data was sent somewhere during encryption
+<br /><br />
+
+<script src="./openpgp.min.js"></script>
+
+PublicKey<br />
+<textarea id="pgp_pubkey" class="txtarea"></textarea><br />
+<br />
+Message:<br />
+<textarea id="pgp_input" class="txtarea"></textarea><br />
+Encrypted Message:<br />
+<textarea id="pgp_output" class="txtarea"></textarea>
+
+
+<script>
+    $("#pgp_pubkey").val(`-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xjMEXocPVxYJKwYBBAHaRw8BAQdA/DNI26iBA1S04kH9klHL1z3jKYcTnngq
+N2Lhabnc57jNAMJ4BBAWCgAgBQJehw9XBgsJBwgDAgQVCAoCBBYCAQACGQEC
+GwMCHgEACgkQ/vPprG7Mbhn4vgD/Z9m2ZpSTmQKyohBggbSdlp0YT4XvadVj
+ZhXSc1tSQ/8BAOFPKUEJkRlzZ0XE33l2YktU4bn2sJv6esfGGfo+efQKzjgE
+XocPVxIKKwYBBAGXVQEFAQEHQHdXPNNGh3jPKec5QM9zQBc4Ynl+9f8bVGBE
+m0l8K8AOAwEIB8JhBBgWCAAJBQJehw9XAhsMAAoJEP7z6axuzG4ZbbUA/2hN
+Ah6gjhhJxuuuzpKXFydt7xL3iTdI6/zGJoSgOGYrAQDok52/rUitv0pZS9Sw
+Fx0rjsdsp2nvGbFkqPDT/xUiDg==
+=7ROV
+-----END PGP PUBLIC KEY BLOCK-----`);
+$("#pgp_input").val('');
+
+    (async () => {
+        doEncrypt = async function() {
+        var publicKeyArmored = $("#pgp_pubkey").val()
+        var cleartext = $("#pgp_input").val()
+
+        const { data: encrypted } = await openpgp.encrypt({
+            message: openpgp.message.fromText(cleartext),
+            publicKeys: (await openpgp.key.readArmored(publicKeyArmored)).keys,
+        });
+
+        $("#pgp_output").val(encrypted)
+    };
+    })();
+
+doEncrypt()
+
+$('#pgp_input').bind('input propertychange', function() {
+    doEncrypt()
+});
+$('#pgp_pubkey').bind('input propertychange', function() {
+    doEncrypt()
+});
+</script>
+
+</body>
+</html>
