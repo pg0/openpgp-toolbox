@@ -1,4 +1,4 @@
-# CryptoToolbox
+# EncryptionToolbox
 
 Public-Key Cryptography in the browser
 
