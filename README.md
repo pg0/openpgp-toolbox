@@ -2,7 +2,7 @@
 
 Public-Key Cryptography in the browser
 
-You can find an >> <a href="https://patrickgawron.com/openpgp-in-the-browser/">online version here</a>
+You can find an >> <a href="https://patrickgawron.com/encrypt/">online version here</a>
 
 ### UseCase:
 * **contact form on your website**
