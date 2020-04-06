@@ -1,11 +1,20 @@
-# openpgp-in-the-browser
+# Encryption Toolbox
 
-Public-Key Cryptography in the browser
+## Tools
+### Synchonous Encryption
+* AES256 (PBKDF2)
+* AES-EAX
+
+### Asynchonous Encryption
+* Public-Key Encryption
+  Multiple Receipients possible
 
 You can find an >> <a href="https://patrickgawron.com/encrypt/">online version here</a>
 
 ### UseCase:
 * **contact form on your website**
+
+Public-Key Cryptography in the browser
 
 A visitor can send you a message which gets encrypted on the client side, 
 then submitted via mail to you
