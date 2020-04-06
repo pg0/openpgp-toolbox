@@ -1,4 +1,4 @@
-# EncryptionToolbox
+# openpgp-in-the-browser
 
 Public-Key Cryptography in the browser
 

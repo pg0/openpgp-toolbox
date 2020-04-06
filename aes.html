@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES Encryption/Decryption</title>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/aes.js"></script>
+    <script src="js/pbkdf2.js"></script>
+    <style type="text/css">
+        .txtarea {
+            width:600px;
+            height:200px;
+        }
+        </style>
+</head>
+<body>
+
+    Passwort:<br />
+    <input id="password1" value="Secret#" />
+    <br /><br />
+    Message: <button id="btnEncrypt">encrypt</button><br />
+    <textarea id="inputText" class="txtarea">test 1234</textarea>
+    <br />
+    Encrypted: <br />
+    <textarea id="encryptedTxt" class="txtarea"></textarea>
+    <br />
+    Decrypted: <input id="decrypt_password" value="Secret#" /><button id="btnDecrypt">decrypt</button><br />
+    <textarea id="decryptedTxt" class="txtarea"></textarea>
+    <script>
+
+function doEncrypt() {
+
+        var message = $('#inputText').val()
+        var pass1 = $('#password1').val()
+
+        var encrypted = CryptoJS.AES.encrypt(message, pass1);
+
+        console.log('key: ',encrypted.key.toString());
+        console.log('iv: ',encrypted.iv.toString());
+        //console.log(encrypted.salt.toString());
+        console.log('ciphertext: ',encrypted.ciphertext.toString());
+        //console.log(encrypted.toString());
+
+        $('#encryptedTxt').val(encrypted)
+    }
+function doDecrypt() {
+    var encmessage = $('#encryptedTxt').val()
+    var pass2 = $('#decrypt_password').val()
+
+
+    var decrypted = CryptoJS.AES.decrypt(encmessage, pass2);
+    //console.log('Decrypted: ',decrypted.toString(CryptoJS.enc.Utf8))
+    $('#decryptedTxt').val(decrypted.toString(CryptoJS.enc.Utf8));
+}
+
+doEncrypt()
+        
+$('#inputText').bind('input propertychange', function() {
+    doEncrypt()
+});
+
+$('#password1').bind('input propertychange', function() {
+    doEncrypt()
+});
+
+$('#decrypt_password').bind('input propertychange', function() {
+  $('#decryptedTxt').val('');
+  doDecrypt()
+});
+
+$('#btnEncrypt').click(function() {
+    doEncrypt()
+})
+$('#btnDecrypt').click(function() {
+    doDecrypt()
+})
+
+    </script>
+</body>
+</html>

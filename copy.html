@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="js/jquery.min.js"></script>
+</head>
+<body>
+<script>
+navigator.permissions.query({name: "clipboard-write"}).then(result => {
+  if (result.state == "granted" || result.state == "prompt") {
+    /* write to the clipboard now */
+  }
+});
+
+function updateClipboard(newClip) {
+  navigator.clipboard.writeText(newClip).then(function() {
+    /* clipboard successfully set */
+  }, function() {
+    /* clipboard write failed */
+  });
+}
+
+
+function paste() {
+  var pasteText = document.querySelector("#output");
+  pasteText.focus();
+  document.execCommand("paste");
+  console.log(pasteText.textContent);
+}
+
+var el = document.getElementById('past');
+if(el){
+  el.addEventListener('click', swapper, false);
+}
+
+document.querySelector("#paste").addEventListener("click", paste);
+</script>
+<input id="input" type="text"/>
+<button id="copy">Copy</button>
+
+<textarea id="output"></textarea>
+<button id="paste">Paste</button>
+</body>
+</html>

@@ -22,17 +22,32 @@ No data is send during encryption
 
 <script src="js/openpgp.min.js"></script>
 
-PublicKey<br />
+PublicKey <button id="btnSelect1">select</button><br />
 <textarea id="pgp_pubkey" class="txtarea"></textarea><br />
 <br />
-Message: <button id="btnEncrypt">encrypt</button><br />
+Message: <button id="btnEncrypt">encrypt</button> <button id="btnCopy1">copy</button> <button id="btnPaste1">paste</button><br />
 <textarea id="pgp_input" class="txtarea"></textarea><br />
-Encrypted Message:<br />
+
+Encrypted Message: <button id="btnCopy2">copy</button><br />
 <textarea id="pgp_output" class="txtarea"></textarea>
 
 
 <script>
-    $("#pgp_pubkey").val(`-----BEGIN PGP PUBLIC KEY BLOCK-----
+function copyToClipboard(mid) {
+  var tmp = $(mid);
+  tmp.val( tmp.val() ).select();
+  document.execCommand("copy");
+}
+function selectText(mid) {
+  var tmp = $(mid);
+  tmp.val( tmp.val() ).select();
+}
+function pasteText(mid) {
+  var tmp = $(mid);
+  navigator.clipboard.readText().then(text => tmp.innerHtml = text);
+}
+
+$("#pgp_pubkey").val(`-----BEGIN PGP PUBLIC KEY BLOCK-----
 
 xjMEXocPVxYJKwYBBAHaRw8BAQdA/DNI26iBA1S04kH9klHL1z3jKYcTnngq
 N2Lhabnc57jNAMJ4BBAWCgAgBQJehw9XBgsJBwgDAgQVCAoCBBYCAQACGQEC
@@ -71,6 +86,19 @@ $('#pgp_pubkey').bind('input propertychange', function() {
 $('#btnEncrypt').click(function() {
     doEncrypt()
 })
+
+$('#btnSelect1').click(function() {
+    selectText('#pgp_pubkey');
+});
+$('#btnCopy1').click(function() {
+    copyToClipboard('#pgp_input');
+});
+$('#btnCopy2').click(function() {
+    copyToClipboard('#pgp_output');
+});
+$('#btnPaste1').click(function() {
+    pasteText('#pgp_input');
+});
 </script>
 
 </body>
