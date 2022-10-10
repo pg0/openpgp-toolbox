@@ -9,8 +9,6 @@
 * Public-Key Encryption
   Multiple Receipients possible
 
-You can find an >> <a href="https://patrickgawron.com/encrypt/">online version here</a>
-
 ### UseCase:
 * **contact form on your website**
 
