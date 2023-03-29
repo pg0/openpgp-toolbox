@@ -49,31 +49,35 @@ function pasteText(mid) {
 
 $("#pgp_pubkey").val(`-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-xjMEXocPVxYJKwYBBAHaRw8BAQdA/DNI26iBA1S04kH9klHL1z3jKYcTnngq
-N2Lhabnc57jNAMJ4BBAWCgAgBQJehw9XBgsJBwgDAgQVCAoCBBYCAQACGQEC
-GwMCHgEACgkQ/vPprG7Mbhn4vgD/Z9m2ZpSTmQKyohBggbSdlp0YT4XvadVj
-ZhXSc1tSQ/8BAOFPKUEJkRlzZ0XE33l2YktU4bn2sJv6esfGGfo+efQKzjgE
-XocPVxIKKwYBBAGXVQEFAQEHQHdXPNNGh3jPKec5QM9zQBc4Ynl+9f8bVGBE
-m0l8K8AOAwEIB8JhBBgWCAAJBQJehw9XAhsMAAoJEP7z6axuzG4ZbbUA/2hN
-Ah6gjhhJxuuuzpKXFydt7xL3iTdI6/zGJoSgOGYrAQDok52/rUitv0pZS9Sw
-Fx0rjsdsp2nvGbFkqPDT/xUiDg==
-=7ROV
+xjMEZCSYDxYJKwYBBAHaRw8BAQdA236zVdhtTOjKPCgl6L8/UcRpSGFPP1JX
+VoJj2wr0seHNKVBhdHJpY2sgR2F3cm9uIDxzYW1wbGVAcGF0cmlja2dhd3Jv
+bi5jb20+wowEEBYKAD4FgmQkmA8ECwkHCAmQU21todfkzVgDFQgKBBYAAgEC
+GQECmwMCHgEWIQTimyaijx5EFeOIkX9TbW2h1+TNWAAAtuQA/3lplXAvyJDA
+GZk8+RJo23woXhZ9mbmCwae4xWHcJXZdAP4qTqm6VszPO71QxagJUREnRwSI
+U3Zo+Wbd0UZnWABKBM44BGQkmA8SCisGAQQBl1UBBQEBB0CDyqtM4M42BWJ1
+wOdt9PHo8ppYDVaheDXlLTWNhDmNdwMBCAfCeAQYFggAKgWCZCSYDwmQU21t
+odfkzVgCmwwWIQTimyaijx5EFeOIkX9TbW2h1+TNWAAAPbcBAJFAuhLmH83z
+AL3uHCbGS5wHcMG3zciER7RUshCAS/uiAQC3OIrleJiOkeCnuJfFL1/23/LO
+kd2S33ACls4LtSPEBA==
+=MZe5
 -----END PGP PUBLIC KEY BLOCK-----`);
 $("#pgp_input").val('');
 
-    (async () => {
-        doEncrypt = async function() {
-        var publicKeyArmored = $("#pgp_pubkey").val()
-        var cleartext = $("#pgp_input").val()
+(async () => {
+    doEncrypt = async function() {
+    var publicKeyArmored = $("#pgp_pubkey").val()
+    var publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
 
-        const { data: encrypted } = await openpgp.encrypt({
-            message: openpgp.message.fromText(cleartext),
-            publicKeys: (await openpgp.key.readArmored(publicKeyArmored)).keys,
-        });
+    var cleartext = $("#pgp_input").val()
 
-        $("#pgp_output").val(encrypted)
-    };
-    })();
+    const encrypted = await openpgp.encrypt({
+        message: await openpgp.createMessage({ text: cleartext }), // input as Message object
+        encryptionKeys: publicKey
+    });
+
+    $("#pgp_output").val(encrypted)
+};
+})();
 
 doEncrypt()
 

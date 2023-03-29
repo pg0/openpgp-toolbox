@@ -34,49 +34,53 @@ Decrypted Message:<br />
 <script>
 $("#pgp_privkey").val(`-----BEGIN PGP PRIVATE KEY BLOCK-----
 
-xVgEXob/lxYJKwYBBAHaRw8BAQdAVLWbXbEvderwWWmAovvCiGpZvvgs3OU+
-BRKxAWRnU64AAP9j6c4PxEvjtdgt66z3Rxsp7AYntG2E3IUN7MpDs7BKUBIP
-zRpkZW1vIDxkZW1vQHlvdXJkb21haW4uY29tPsJ4BBAWCgAgBQJehv+XBgsJ
-BwgDAgQVCAoCBBYCAQACGQECGwMCHgEACgkQ0OdE70D3yGPH7AEA0CqxKyN+
-iO2G/FEFFWRonji3YAnvdGuVqySl6mAgoj8BANik1S8AhBHdk+Rxd6sze0Ct
-pfurP/qpUc8/gRD43lINx10EXob/lxIKKwYBBAGXVQEFAQEHQDUtmHTI9Uy6
-u44yr6XWGKC/3z+Q4OJi9WKAAdO+LWpbAwEIBwAA/1przk3UEIuTTByxWCFx
-81m/CLwK7osxIFBStXz0LH8YDxHCYQQYFggACQUCXob/lwIbDAAKCRDQ50Tv
-QPfIYxHEAQD9oK6wBoN9bL6CNPsl+yFfAUutkikPs4kxtREh9MOTmQEA6XpZ
-KvKPuRsF4pdz7tZZtYUYVgLyEsGcxb4r1ocZMwE=
-=2IY9
+xVgEZCSYDxYJKwYBBAHaRw8BAQdA236zVdhtTOjKPCgl6L8/UcRpSGFPP1JX
+VoJj2wr0seEAAP998oxYCBD9plRPAMTxW1KlZUr0ccOV9Kb2ywusFwU1NxC9
+zSlQYXRyaWNrIEdhd3JvbiA8c2FtcGxlQHBhdHJpY2tnYXdyb24uY29tPsKM
+BBAWCgA+BYJkJJgPBAsJBwgJkFNtbaHX5M1YAxUICgQWAAIBAhkBApsDAh4B
+FiEE4psmoo8eRBXjiJF/U21todfkzVgAALbkAP95aZVwL8iQwBmZPPkSaNt8
+KF4WfZm5gsGnuMVh3CV2XQD+Kk6pulbMzzu9UMWoCVERJ0cEiFN2aPlm3dFG
+Z1gASgTHXQRkJJgPEgorBgEEAZdVAQUBAQdAg8qrTODONgVidcDnbfTx6PKa
+WA1WoXg15S01jYQ5jXcDAQgHAAD/SszqG3sz3dYc2TAqux5Lubd2NGeY5VzE
+5QtDjtfbLjAQ3cJ4BBgWCAAqBYJkJJgPCZBTbW2h1+TNWAKbDBYhBOKbJqKP
+HkQV44iRf1NtbaHX5M1YAAA9twEAkUC6EuYfzfMAve4cJsZLnAdwwbfNyIRH
+tFSyEIBL+6IBALc4iuV4mI6R4Ke4l8UvX/bf8s6R3ZLfcAKWzgu1I8QE
+=G03i
 -----END PGP PRIVATE KEY BLOCK-----`);
 
 $("#pgp_input").val(`-----BEGIN PGP MESSAGE-----
 
-wV4D91Dl29Uit6oSAQdA6cMYq4VXxM1S4LQPu0XW4mBVv0b8ENdlsRZ92s1m
-ZT4wRw6lCzIosUnT0mAHia9TPiYLJFcgIj80FX8j6J6TANMEgExa6WIjTMyd
-uH57+qw40o8Bp0Sa9JPwDJSy3tm6hk7GYwHvjxDjn/trgRhTakpoe5w/dOpO
-MdZzxPIncLVJLcXGVUXc8XaQiqetGoOdW8lqwf7ZmOgmjv48n0+EAsgyEaVc
-NyblsfhbzRRto/MLpYvhdTWSj+5jU3tdHEbhv8aYHae+VNLxUD4TyxyYdf7l
-2uoAvBRLqVScGsf4bAYFQQ==
-=AMHe
+wV4DmvxW3dlI7eYSAQdAJtOW85mL9N11BonK3PvZutx9oncCjWeqTBpuHwXS
+3VYwN83/BHtWrcEzz9s2i/MY0B75AZjbkcCJvTc9OlSv6slTh6UHZTKV+UpH
+TsbRw7Zx0mYB8KSscODg5GRCEPEgVDQQ84hMxGy3G+7HzWXSm0LHCDoxu98d
+taoM1WY3MTAjBYkdLSw6m5xnAR+8vjSIYfuWNcAv08uEjLXUP6iPvv3p4IJI
+I+vnLG7u5Z/6pM/QfUy3EOKRBqM=
+=zLRi
 -----END PGP MESSAGE-----`);
 
 (async () => {
     doDecrypt = async function() {
         const privateKeyArmored = $("#pgp_privkey").val().replace(/\r/, "")
-        const ciphertext = $("#pgp_input").val().replace(/\r/, "")
+        const encrypted = $("#pgp_input").val().replace(/\r/, "")
 
-        if (privateKeyArmored != '' && ciphertext != '') {
-            const privateKey = (await openpgp.key.readArmored([privateKeyArmored])).keys[0];
+        if (privateKeyArmored != '' && encrypted != '') {
+            const privateKey = await openpgp.readPrivateKey({ armoredKey: privateKeyArmored })
 
-            const decrypted = await openpgp.decrypt({
-                message: await openpgp.message.readArmored(ciphertext),
-                privateKeys: [privateKey]
+            const message = await openpgp.readMessage({
+                armoredMessage: encrypted // parse armored message
             });
 
-            $("#pgp_output").val(decrypted.data)
+            const { data: decrypted } = await openpgp.decrypt({
+                message,
+                decryptionKeys: privateKey
+            });
+
+            $("#pgp_output").val(decrypted)
 
         } else {
             $("#pgp_output").val('')
         }
-};
+    };
 })();
 
 doDecrypt()

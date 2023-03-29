@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/jquery.min.js"></script>
+    <style type="text/css">
+        .txtarea {
+            width: 600px;
+            height: 200px;
+        }
+    </style>
+    <title>Sign and Verify with PrivKey</title>
+</head>
+
+<body>
+<h2>Sign and Verify with OpenPGP.js</h2>
+<u>Offline</u> in your Browser<br />
+No data is send during encryption
+<br /><br />
+
+<script src="js/openpgp.min.js"></script>
+
+PrivKey <button id="btnSelect1">select</button><br />
+<textarea id="pgp_privkey" class="txtarea"></textarea><br />
+<br />
+Message: <button id="btnEncrypt">sign</button> <button id="btnCopy1">copy</button> <button id="btnPaste1">paste</button><br />
+<textarea id="pgp_input" class="txtarea"></textarea><br />
+
+Signed Message: <button id="btnCopy2">copy</button><br />
+<textarea id="pgp_output" class="txtarea"></textarea>
+
+
+<script>
+function copyToClipboard(mid) {
+  var tmp = $(mid);
+  tmp.val( tmp.val() ).select();
+  document.execCommand("copy");
+}
+function selectText(mid) {
+  var tmp = $(mid);
+  tmp.val( tmp.val() ).select();
+}
+function pasteText(mid) {
+  var tmp = $(mid);
+  navigator.clipboard.readText().then(text => tmp.innerHtml = text);
+}
+
+$("#pgp_privkey").val(`-----BEGIN PGP PRIVATE KEY BLOCK-----
+
+xVgEZCSYDxYJKwYBBAHaRw8BAQdA236zVdhtTOjKPCgl6L8/UcRpSGFPP1JX
+VoJj2wr0seEAAP998oxYCBD9plRPAMTxW1KlZUr0ccOV9Kb2ywusFwU1NxC9
+zSlQYXRyaWNrIEdhd3JvbiA8c2FtcGxlQHBhdHJpY2tnYXdyb24uY29tPsKM
+BBAWCgA+BYJkJJgPBAsJBwgJkFNtbaHX5M1YAxUICgQWAAIBAhkBApsDAh4B
+FiEE4psmoo8eRBXjiJF/U21todfkzVgAALbkAP95aZVwL8iQwBmZPPkSaNt8
+KF4WfZm5gsGnuMVh3CV2XQD+Kk6pulbMzzu9UMWoCVERJ0cEiFN2aPlm3dFG
+Z1gASgTHXQRkJJgPEgorBgEEAZdVAQUBAQdAg8qrTODONgVidcDnbfTx6PKa
+WA1WoXg15S01jYQ5jXcDAQgHAAD/SszqG3sz3dYc2TAqux5Lubd2NGeY5VzE
+5QtDjtfbLjAQ3cJ4BBgWCAAqBYJkJJgPCZBTbW2h1+TNWAKbDBYhBOKbJqKP
+HkQV44iRf1NtbaHX5M1YAAA9twEAkUC6EuYfzfMAve4cJsZLnAdwwbfNyIRH
+tFSyEIBL+6IBALc4iuV4mI6R4Ke4l8UvX/bf8s6R3ZLfcAKWzgu1I8QE
+=G03i
+-----END PGP PRIVATE KEY BLOCK-----`);
+
+$('#pgp_input').val('this is living!');
+
+(async () => {
+    doEncrypt = async function() {
+    var privateKeyArmored = $("#pgp_privkey").val()
+    const privateKey = await openpgp.readPrivateKey({ armoredKey: privateKeyArmored })
+
+    var cleartext = $("#pgp_input").val()
+
+    const unsignedMessage = await openpgp.createCleartextMessage({ text: cleartext });
+    const cleartextMessage = await openpgp.sign({
+        message: unsignedMessage, // CleartextMessage or Message object
+        signingKeys: privateKey
+    });
+    console.log(cleartextMessage); // '-----BEGIN PGP SIGNED MESSAGE ... END PGP SIGNATURE-----'
+
+    const signedMessage = await openpgp.readCleartextMessage({
+        cleartextMessage // parse armored message
+    });
+
+    $("#pgp_output").val(cleartextMessage)
+
+    const verificationResult = await openpgp.verify({
+        message: signedMessage,
+        verificationKeys: await openpgp.readKey({ armoredKey: privateKeyArmored })
+    });
+
+    for await (const chunk of verificationResult.data) {}
+    // Note: you *have* to read `verificationResult.data` in some way or other,
+    // even if you don't need it, as that is what triggers the
+    // verification of the data.
+
+    try {
+        await verificationResult.signatures[0].verified; // throws on invalid signature
+        console.log(verificationResult)
+        console.log('Signed by key id ' + verificationResult.signatures[0].keyID.toHex());
+     } catch (e) {
+        throw new Error('Signature could not be verified: ' + e.message);
+    }
+
+};
+})();
+
+doEncrypt()
+
+$('#pgp_input').bind('input propertychange', function() {
+    doEncrypt()
+});
+$('#pgp_privkey').bind('input propertychange', function() {
+    doEncrypt()
+});
+$('#btnEncrypt').click(function() {
+    doEncrypt()
+})
+
+$('#btnSelect1').click(function() {
+    selectText('#pgp_privkey');
+});
+$('#btnCopy1').click(function() {
+    copyToClipboard('#pgp_input');
+});
+$('#btnCopy2').click(function() {
+    copyToClipboard('#pgp_output');
+});
+$('#btnPaste1').click(function() {
+    pasteText('#pgp_input');
+});
+</script>
+
+</body>
+</html>

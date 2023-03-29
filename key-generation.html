@@ -35,25 +35,27 @@ Calculate <button id="btnCalcECC">ECC EdDSA</button> <button id="btnCalcRSA">RSA
 <script>
 (async () => {
     keyGenECC = async function(inName,inEmail,inPassphrase) {
-        const { privateKeyArmored, publicKeyArmored, revocationCertificate } = await openpgp.generateKey({
-            userIds: [{ name: inName, email: inEmail }], // you can pass multiple user IDs
+        const { privateKey, publicKey, revocationCertificate } = await openpgp.generateKey({
+            type: 'ecc', // Type of the key, defaults to ECC
+            userIDs: [{ name: inName, email: inEmail }], // you can pass multiple user IDs
             curve: 'ed25519',                                           // ECC curve name
             passphrase: inPassphrase           // protects the private key
         });
 
-        $('#output').html('<pre>'+privateKeyArmored+'</pre>'+  // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
-        '<pre>'+publicKeyArmored+'</pre>' + // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+        $('#output').html('<pre>'+privateKey+'</pre>'+  // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
+        '<pre>'+publicKey+'</pre>' + // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
         '<pre>'+revocationCertificate+'</pre>'); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
     }
     keyGenRSA = async function(inName,inEmail,inPassphrase) {
-        const { privateKeyArmored, publicKeyArmored, revocationCertificate } = await openpgp.generateKey({
-            userIds: [{ name: inName, email: inEmail }], // you can pass multiple user IDs
+        const { privateKey, publicKey, revocationCertificate } = await openpgp.generateKey({
+            type: 'rsa', // Type of the key
+            userIDs: [{ name: inName, email: inEmail }], // you can pass multiple user IDs
             rsaBits: 4096,
             passphrase: inPassphrase           // protects the private key
         });
 
-        $('#output').html('<pre>'+privateKeyArmored+'</pre>'+  // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
-        '<pre>'+publicKeyArmored+'</pre>' + // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+        $('#output').html('<pre>'+privateKey+'</pre>'+  // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
+        '<pre>'+publicKey+'</pre>' + // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
         '<pre>'+revocationCertificate+'</pre>'); // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
     }
 })();
