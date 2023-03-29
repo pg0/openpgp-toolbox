@@ -24,6 +24,8 @@ Passwort:<br />
 <input id="password2" value="" />
 <input id="password3" value="" />
 <br /><br />
+Encryption Algorithm: <select id="algorithm"><option value="aex">AES-EAX</option><option value="ocb">OCB</option><option value="gcm">GCM</option></select><br />
+with Compression: <select id="compression"><option value="uncompressed">uncompressed</option><option value="zip">zip</option><option value="zlib">zlib</option></select><br />
 Message: <button id="btnEncrypt">encrypt</button><br />
 <textarea id="inputText" class="txtarea">test 1234</textarea>
 <br />
@@ -93,31 +95,54 @@ function _base64ToArrayBuffer(base64) {
 }
 
 (async () => {
+    var preferredCompressionAlgorithm;
+    var preferredAEADAlgorithm;
+
+    selectAlgorithm = function() {
+        switch($('#algorithm').val()) {
+            case 'ocb': preferredAEADAlgorithm = openpgp.enums.aead.ocb // Non-native
+                break;
+            case 'gcm': preferredAEADAlgorithm = openpgp.enums.aead.experimentalGCM // **Non-standard**, fastest
+                break;
+            default: preferredAEADAlgorithm = openpgp.enums.aead.eax // Default, native
+        }
+    }
+    selectCompression = function() {
+        switch($('#compression').val()) {
+            case 'zip': preferredCompressionAlgorithm = openpgp.enums.compression.zip
+                break;
+            case 'zlib': preferredCompressionAlgorithm = openpgp.enums.compression.zlib
+                break;
+            default: preferredCompressionAlgorithm = openpgp.enums.compression.uncompressed
+        }
+    }
+    selectAlgorithm();
+    selectCompression();
+
     doEncrypt = async function() {
-    var usepwds = Array();
-    
-    var passwd1 = $('#password1').val();
-    var passwd2 = $('#password2').val();
-    var passwd3 = $('#password3').val();
+        var usepwds = Array();
+        
+        var passwd1 = $('#password1').val();
+        var passwd2 = $('#password2').val();
+        var passwd3 = $('#password3').val();
 
-    if (passwd1 != "") usepwds.push(passwd1);
-    if (passwd2 != "") usepwds.push(passwd2);
-    if (passwd3 != "") usepwds.push(passwd3);
+        if (passwd1 != "") usepwds.push(passwd1);
+        if (passwd2 != "") usepwds.push(passwd2);
+        if (passwd3 != "") usepwds.push(passwd3);
 
-    //console.log(usepwds);
+        //console.log(usepwds);
 
-    var cleartext = $('#inputText').val();
+        var cleartext = $('#inputText').val();
 
-    const { message } = await openpgp.encrypt({
-        message: openpgp.message.fromText(cleartext), // input as Message object
-        passwords: usepwds,                                             // multiple passwords possible
-        armor: false                                                             // don't ASCII armor (for Uint8Array output)
-    });
+        const encrypted = await openpgp.encrypt({
+            message: await openpgp.createMessage({ text: cleartext}), // input as Message object
+            passwords: usepwds,                                             // multiple passwords possible
+            format: 'binary',                                                             // don't ASCII armor (for Uint8Array output)
+            config: { preferredAEADAlgorithm,
+                      preferredCompressionAlgorithm }
+        });
 
-    const encrypted = message.packets.write(); // get raw encrypted packets as Uint8Array
-    //console.log(message.packets)
         $('#encryptedTxt').val(bytesToBase64(encrypted));
-
     }
 
     doDecrypt = async function() {
@@ -126,10 +151,17 @@ function _base64ToArrayBuffer(base64) {
 
         var encryptedBytes = new Uint8Array(_base64ToArrayBuffer(encryptedd));
 
-        const { data: decrypted } = await openpgp.decrypt({
-            message: await openpgp.message.read(encryptedBytes), // parse encrypted bytes
-            passwords: [passwd],                    // decrypt with password
+        const message = await openpgp.readMessage({
+            binaryMessage: encryptedBytes // parse message
         });
+
+        const { data: decrypted } = await openpgp.decrypt({
+            message,
+            passwords: [passwd],                    // decrypt with password
+            config: { preferredAEADAlgorithm,
+                      preferredCompressionAlgorithm }
+        });
+
 
         //console.log(decrypted)
         $('#decryptedTxt').val(decrypted);
@@ -161,6 +193,9 @@ $('#btnEncrypt').click(function() {
 $('#btnDecrypt').click(function() {
     doDecrypt()
 })
+
+$('#algorithm').change( () => selectAlgorithm() )
+$('#compression').change( () => selectCompression() )
 
 </script>
     
